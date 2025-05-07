@@ -45,13 +45,13 @@ def help():
     return render_template("help.html", title="Help")
 
 @app.route("/login1",methods=["GET","POST"])
-@check_login
 def login1():
     form=login()
     if form.validate_on_submit():
         if form.email.data in che:
             if che[form.email.data]==form.password.data:
                 session["username"]=form.email.data
+                flash("Successfully Log-in","success")
                 return redirect(url_for("home"))
             else:
                 flash("password is wrong","danger")
