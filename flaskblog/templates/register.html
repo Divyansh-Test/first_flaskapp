@@ -1,7 +1,7 @@
 {% extends "layout.html" %} {% block content %}
 
 
-    <form method="POST" action=" {{url_for('register1')}}">
+    <form method="POST" action=" {{url_for('register')}}">
         {{ form.hidden_tag() }}
         <fieldset>
         <div class="form-group">
@@ -70,7 +70,7 @@
     </fieldset>
     <small>
     Already Have An Account?
-    <a href="{{url_for('home')}}">LOGIN </a>
+    <a href="{{url_for('login')}}">LOGIN </a>
     </small>
     </form>
 

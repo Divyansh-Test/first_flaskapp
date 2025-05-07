@@ -1,5 +1,5 @@
 from flask import render_template, url_for, redirect, flash, request,session
-from flaskblog.form import register,login
+from flaskblog.form import Register,Login
 from functools import wraps
 from flaskblog import app
 che={}
@@ -9,7 +9,7 @@ def check_login(func):
 		if "username" in session:
 			return func(*args,**kwarg)
 		else:
-			return redirect(url_for("login1"))
+			return redirect(url_for("login"))
 	return check
 
 
@@ -25,15 +25,16 @@ def about():
     return "This is about page"
     #return render_template("about.html", title="About")
 
-@app.route("/register1", methods=['GET', 'POST'])
+@app.route("/register", methods=['GET', 'POST'])
 
-def register1():
-    form = register()
+def register():
+    form = Register()
+    name = form.username.data
     if form.validate_on_submit():
-        flash(f'Account created for {form.username.data}!', 'success')
-        print(f'{form.username.data} successfully created')
-        che[form.email.data]=form.password.data
-        return redirect(url_for('home'))
+        flash(f'Account created for {name}!', 'success')
+        print(f'{name} successfully created')
+        che[form.email.data]=[form.password.data,name]
+        return redirect(url_for('login'))
     else:
         if request.method == 'POST':
             print("Form did not validate:")
@@ -44,17 +45,20 @@ def register1():
 def help():
     return render_template("help.html", title="Help")
 
-@app.route("/login1",methods=["GET","POST"])
-def login1():
-    form=login()
+@app.route("/login",methods=["GET","POST"])
+def login():
+    form=Login()
     if form.validate_on_submit():
+        
         if form.email.data in che:
-            if che[form.email.data]==form.password.data:
+            
+            if che[form.email.data][0]==form.password.data:
                 session["username"]=form.email.data
-                flash("Successfully Log-in","success")
+                print("successfully login")
+                flash(f"Successfully Log-in as {che[form.email.data][1]}","success")
                 return redirect(url_for("home"))
             else:
-                flash("password is wrong","danger")
+                flash("INCORRECT PASSWORD","danger")
         else:
-            flash("email is not registered! Please Register","danger")
+            flash("email is not registered! Please Register","danger")       
     return render_template("login.html",form=form,title="login")
