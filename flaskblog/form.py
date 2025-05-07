@@ -9,4 +9,10 @@ class register(FlaskForm):
 	confirm_password=PasswordField("confirm_password",validators=[DataRequired(),EqualTo('password')])
 	cache=BooleanField("remember me")
 	submit=SubmitField("Sign-up")
+class login(FlaskForm):
+	email=StringField("email",validators=[DataRequired(),Email()])
+	password=PasswordField("password",validators=[DataRequired()])
+	cache=BooleanField("remember me")
+	submit=SubmitField("login")
+	
 
