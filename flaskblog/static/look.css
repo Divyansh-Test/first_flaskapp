@@ -1,0 +1,67 @@
+/* Container styling */
+.div1 {
+    margin-bottom: 15px;
+}
+
+/* Label styling */
+.l1 {
+    display: block;
+    font-weight: bold;
+    margin-bottom: 5px;
+}
+
+/* Input field styling */
+.u1 {
+    width: 100%;
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    box-sizing: border-box;
+}
+
+/* Error message styling */
+.invalid_feedback {
+    color: #dc3545;
+    font-size: 0.875em;
+    margin-top: 5px;
+}
+
+/* Submit button styling */
+.submit_btn {
+    background-color: #007bff;
+    color: white;
+    padding: 10px 15px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    margin-left: 100px;
+    margin-bottom: 10px;
+}
+
+.submit_btn:hover {
+    background-color: #5be346;
+}
+
+/* Cancel button styling */
+.cancel_btn {
+    background-color: #f53636;
+    color: white;
+    padding: 10px 15px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    width:300px;
+}
+
+.cancel_btn:hover {
+    background-color: #5a6268;
+}
+
+/* Fieldset styling */
+.f1 {
+    border: 1px solid #dee2e6;
+    padding: 20px;
+    border-radius: 5px;
+    max-width: 500px;
+    margin: 0 auto;
+}

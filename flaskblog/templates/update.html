@@ -1,0 +1,51 @@
+{% extends "layout.html" %} {% block content %}
+<link rel="stylesheet" href="{{ url_for('static', filename='./look.css') }}">
+<form method="POST" action={{url_for("update")}}>
+  {{form.hidden_tag()}}
+  <fieldset class="f1">
+  <div class="div1">
+    {{form.username.label(class="l1")}}
+    {{form.username (class="u1")}}
+    {% if form.username.errors %}
+    <div class="invalid_feedback">
+      {% for error in form.username.errors %}
+      <span>{{error}}</span>
+      {% endfor %}
+    {% endif %}
+    </div>
+    </div>
+    <div class="div1">
+      {{form.email.label(class="l1")}}
+      {{form.email (class="u1")}}
+      {% if form.email.errors %}
+      <div class="invalid_feedback">
+        {% for error in form.email.errors %}
+        <span>{{error}}</span>
+        {% endfor %}
+      {% endif %}
+      </div>
+      </div>
+    <div class="div1">
+      {{form.Dob.label(class="l1")}}
+      {{form.Dob (class="u1")}}
+      {% if form.Dob.errors %}
+      <div class="invalid_feedback">
+        {% for error in form.Dob.errors %}
+        <span>{{error}}</span>
+        {% endfor %}
+      {% endif %}
+      </div>
+      </div>
+    <div>
+        {{form.submit(class="submit_btn")}}
+    </div>
+    <div>
+      {{form.cancel(class="cancel_btn")}}
+    </div>
+      
+    
+    </div>
+  </fieldset>
+    
+</form>
+{% endblock content %}
