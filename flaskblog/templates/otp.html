@@ -1,0 +1,253 @@
+{% extends "layout.html" %}
+{% block content%}
+<style>
+    .od0 {
+        background: rgba(255, 255, 255, 0.95);
+        border-radius: 16px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        padding: 40px;
+        max-width: 500px;
+        margin: 0 auto;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .od0:before {
+        content: '';
+        position: absolute;
+        top: -50px;
+        right: -50px;
+        width: 200px;
+        height: 200px;
+        border-radius: 50%;
+        background: linear-gradient(45deg, rgba(106, 17, 203, 0.1), rgba(37, 117, 252, 0.1));
+        z-index: 0;
+    }
+
+    .od0:after {
+        content: '';
+        position: absolute;
+        bottom: -80px;
+        left: -50px;
+        width: 300px;
+        height: 300px;
+        border-radius: 50%;
+        background: linear-gradient(45deg, rgba(37, 117, 252, 0.05), rgba(106, 17, 203, 0.05));
+        z-index: 0;
+    }
+
+    .od0 > * {
+        position: relative;
+        z-index: 1;
+    }
+
+    .od1 {
+        margin-bottom: 25px;
+    }
+
+    .form-control-label {
+        display: block;
+        margin-bottom: 10px;
+        font-weight: 600;
+        color: #2c3e50;
+        font-size: 16px;
+    }
+
+    .form-control-lg {
+        width: 100%;
+        padding: 15px 20px;
+        border: 2px solid #e1e5eb;
+        border-radius: 10px;
+        font-size: 16px;
+        transition: all 0.3s ease;
+        background: #f8f9fa;
+        color: #2c3e50;
+        outline: none;
+    }
+
+    .form-control-lg:focus {
+        border-color: #3498db;
+        box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.2);
+        background: #fff;
+    }
+
+    .form-control-lg.is-invalid {
+        border-color: #e74c3c;
+    }
+
+    .form-control-lg.is-invalid:focus {
+        box-shadow: 0 0 0 3px rgba(231, 76, 60, 0.2);
+    }
+
+    .od2 {
+        color: #e74c3c;
+        font-size: 14px;
+        margin-top: 8px;
+        font-weight: 500;
+        padding-left: 5px;
+        animation: fadeIn 0.3s ease;
+    }
+
+    .od3 {
+        margin-top: 20px;
+    }
+
+    .btn-primary {
+        background: linear-gradient(to right, #3498db, #2c3e50);
+        border: none;
+        color: white;
+        padding: 15px;
+        width: 100%;
+        font-size: 16px;
+        font-weight: 600;
+        border-radius: 10px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        box-shadow: 0 5px 15px rgba(52, 152, 219, 0.3);
+    }
+
+    .btn-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 7px 20px rgba(52, 152, 219, 0.4);
+    }
+
+    .btn-primary:active {
+        transform: translateY(0);
+    }
+
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(-5px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Additional info section */
+    .otp-info {
+        margin-top: 30px;
+        font-size: 14px;
+        color: #7f8c8d;
+        text-align: center;
+    }
+
+    .otp-info a {
+        color: #3498db;
+        text-decoration: none;
+        font-weight: 600;
+    }
+
+    .otp-info a:hover {
+        text-decoration: underline;
+    }
+
+    /* Countdown timer */
+    .countdown {
+        display: none;
+        margin-top: 5px;
+        font-size: 13px;
+        color: #7f8c8d;
+    }
+
+    /* Responsive adjustments */
+    @media (max-width: 576px) {
+        .od0 {
+            padding: 30px 20px;
+        }
+        
+        .form-control-lg {
+            padding: 12px 15px;
+            font-size: 15px;
+        }
+        
+        .btn-primary {
+            padding: 12px;
+            font-size: 15px;
+        }
+    }
+</style>
+
+<div class="od0">
+    <form method="POST" action="">
+        {{ form.hidden_tag() }}
+        <div class="od1">
+            {{ form.Otp.label(class="form-control-label") }}
+            {% if form.Otp.errors %}
+                {{ form.Otp(class="form-control form-control-lg is-invalid") }}
+                <div class="od2">
+                    {% for error in form.otp.errors %}
+                        <span>{{ error }}</span>
+                    {% endfor %}
+                </div>
+            {% else %}
+                {{ form.Otp(class="form-control form-control-lg") }}
+            {% endif %}
+        </div>
+        <div class="od3">
+            {{ form.submit(class="btn btn-primary") }}
+        </div>
+    </form>
+    
+    <div class="otp-info">
+        Didn't receive code? <a href="#" id="resendOtp">Resend OTP</a>
+        <div class="countdown" id="countdown">Resend available in <span id="timer">30</span> seconds</div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Auto-focus on OTP input
+        const otpInput = document.querySelector('.form-control-lg');
+        if (otpInput) {
+            otpInput.focus();
+            
+            // Restrict input to numbers only
+            otpInput.addEventListener('input', function() {
+                this.value = this.value.replace(/[^0-9]/g, '');
+                if (this.value.length > 6) {
+                    this.value = this.value.slice(0, 6);
+                }
+            });
+        }
+
+        // Resend OTP functionality
+        const resendLink = document.getElementById('resendOtp');
+        const countdownDiv = document.getElementById('countdown');
+        const timerSpan = document.getElementById('timer');
+        
+        if (resendLink && countdownDiv && timerSpan) {
+            resendLink.addEventListener('click', function(e) {
+                e.preventDefault();
+                
+                // Disable resend link
+                resendLink.style.pointerEvents = 'none';
+                resendLink.style.opacity = '0.6';
+                
+                // Show countdown
+                countdownDiv.style.display = 'block';
+                
+                let timeLeft = 30;
+                timerSpan.textContent = timeLeft;
+                
+                const countdownInterval = setInterval(() => {
+                    timeLeft--;
+                    timerSpan.textContent = timeLeft;
+                    
+                    if (timeLeft <= 0) {
+                        clearInterval(countdownInterval);
+                        countdownDiv.style.display = 'none';
+                        resendLink.style.pointerEvents = 'auto';
+                        resendLink.style.opacity = '1';
+                    }
+                }, 1000);
+                
+                // Here you would typically make an AJAX call to resend OTP
+                console.log('OTP resend requested');
+            });
+        }
+
+        // Add animation to error messages
+        const errorDiv = document.querySelector('.od2');
+        if (errorDiv) {
+            errorDiv.style.display = 'block';
+        }
+    });
+</script>
+{% endblock content %}

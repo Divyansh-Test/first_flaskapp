@@ -22,8 +22,8 @@
         {% with messages = get_flashed_messages(with_categories=true) %}
             {% if messages %}
                 {% for category, message in messages %}
-                    <div class="d2">
-                        {{ message }}
+                    <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+                        {{ message  }}
                         <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                     </div>
                 {% endfor %}
@@ -34,6 +34,8 @@
     </main>
 
     <!-- Bootstrap JS -->
+                <!-- Bootstrap 5 Bundle with Popper (required for dismissible alerts) -->
+                <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-..." crossorigin="anonymous"></script>
     
 </body>
 </html>

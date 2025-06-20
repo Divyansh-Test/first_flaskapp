@@ -57,10 +57,29 @@
         {% endif %}
     </div>
     
-    <div class="form-check mb-3">
-        {{ form.cache(class="form-check-input") }}
-        {{ form.cache.label(class="form-check-label") }}
-    </div>
+            <div class="mb-3 d-flex align-items-center gap-4">
+
+                <!-- Cache checkbox -->
+                <div class="form-check">
+                    {{ form.cache(class="form-check-input", id="cache_id") }}
+                    <label class="form-check-label ms-2" for="cache_id">
+                        {{ form.cache.label.text }}
+                    </label>
+                </div>
+
+                <!-- Inline radio buttons -->
+                <div style="background-color:#e66565;padding:5px 10px 5px 10px;width:120;border-radius:10px;",class="d-flex gap-3">
+                    {% for subfield in form.post_user %}
+                        <div class="form-check form-check-inline">
+                            {{ subfield(class="form-check-input", id=subfield.id) }}
+                            <label class="form-check-label" for="{{ subfield.id }}">
+                                {{ subfield.label.text }}
+                            </label>
+                        </div>
+                    {% endfor %}
+                </div>
+
+            </div>
     
     
     <div class="form-group">

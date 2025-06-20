@@ -6,6 +6,7 @@ app = Flask(__name__)
 app.config['SECRET_KEY'] = '3f66e1ab593dce6105b2f7e86db63831'
 app.config["SQLALCHEMY_DATABASE_URI"]="sqlite:///site.db"
 db=SQLAlchemy(app)
+app.app_context().push()
 bcrypt=Bcrypt(app)
 from flaskblog import route
 from flaskblog.database import userdata,posts

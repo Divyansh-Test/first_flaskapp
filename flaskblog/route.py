@@ -1,9 +1,25 @@
-from flask import render_template, url_for, redirect, flash, request,session
-from sqlalchemy.orm.attributes import get_attribute
-from flaskblog.form import Register,Login,Update
+from flask import render_template, url_for, redirect, flash, session,request
+import json
+
+from flaskblog.form import Register,Login,Update,otp_form
 from functools import wraps
 from flaskblog import app,db,bcrypt
-from flaskblog.database import userdata,posts
+from flaskblog.database import userdata,admin
+from flaskblog.send_mail import send_mail
+
+session={"username":None,"otp":None,"role":None} #this is written because home is throwing an error and later none is converted to username
+db.create_all()
+def after_otp(a):
+    dct={}
+    for i in a:
+        if i=="role":
+            role=a[i]
+            continue
+        dct[i]=a[i]
+    fnl=session["role"](**dct)
+    session["role"]=None
+    db.session.add(fnl)
+    db.session.commit()
 
 
 
@@ -17,49 +33,48 @@ def place_holder(Form,name):
 
 
 def check_login(func):
-	@wraps(func)
-	def funct(*args,**kwarg):
-			
-		if session["username"] !=None:
-			return func(*args,**kwarg)
-		else:
-				
-			return redirect(url_for("login"))
-	
-		return redirect(url_for("login"))
-	return funct
+    @wraps(func)
+    def check(*args,**kwarg):
+        if session["username"] is not None :
+            return func(*args,**kwarg)
+        else:
+            return redirect(url_for("login"))
+    return check
+
 
 @app.route("/")
 @app.route("/home")
 @check_login
 def home():
-    db.create_all()
-    print(userdata.query.all())
+    
+    
+    
     print(session["username"])
 
     return render_template("home.html")
 
 @app.route("/about")
-@check_login
-def about():
-    return "This is about page"
-    #return render_template("about.html", title="About")
+
 
 @app.route("/register", methods=['GET', 'POST'])
 
 def register():
-    db.create_all()
+
 
     form = Register()
 
     if form.validate_on_submit():
         name = form.username.data
         flash(f'Account created for {name}!', 'success')
-
-        user=userdata(username=form.username.data,email=form.email.data,password=bcrypt.generate_password_hash(form.password.data))
-        db.session.add(user)
-        db.session.commit()
-        return redirect(url_for('login'))
+        if form.post_user.data=="user":
+            role=userdata
+        else:
+            role=admin
+        dict={"username":form.username.data,"email":form.email.data,"password":bcrypt.generate_password_hash(form.password.data).decode('utf-8')}
+        
+        
+        session["role"]=role
+        return redirect(url_for("otp_page",cpage="register",section="login",uemail=form.email.data,dict=json.dumps(dict)))
 
 
     else:
@@ -78,7 +93,6 @@ def help():
 
 @app.route("/login",methods=["GET","POST"])
 def login():
-    db.create_all()
     form=Login()
     if form.validate_on_submit():
         name=form.email.data
@@ -107,8 +121,8 @@ def login():
 @check_login
 
 def update():
-    print(session["username"])
-    db.create_all() 
+    
+ 
     form=Update()
     place_holder(form,session["username"])
     
@@ -121,17 +135,19 @@ def update():
     if form.cancel.data:
         return redirect(url_for("home"))
     elif form.submit.data and  form.validate_on_submit():
-        print("submit pressed  ",session["username"])
+        
+        
+        
         username=form.username.data
         email=form.email.data
         dob=form.Dob.data
-        print('########',type(username))
+        
  
             
         user=userdata.query.filter_by(username=session['username']).first()
         uname=session['username']
         
-        print(session["username"],"\n",user)
+        
         
             
         
@@ -139,14 +155,14 @@ def update():
         
             
         
-        lst={'username':username.lower().strip(),'email':email,'dob':dob}
+        lst={'username':username,'email':email,'dob':dob}
         for j in lst:
             if lst[j]!="":
                 if j=='username':
                     if userdata.query.filter_by(username=lst[j]).first() is None:
                         user.username=lst[j].lower().strip()
                         db.session.commit()
-                        session['username']=username.lower().strip()
+                        session['username']=username
                     else:
                         flash(f'Username already exist', 'danger')
                         return redirect(url_for("update"))
@@ -162,7 +178,6 @@ def update():
                         flash(f'Email already exist', 'danger')
                 elif j=='dob':
                     user.dob=lst[j]
-                    db.session.commit()
             
 
 
@@ -172,3 +187,36 @@ def update():
 
 
     return(render_template("update.html",form=form,title="update"))
+
+
+@app.route("/otp/<cpage>", methods=['GET', 'POST'])
+def otp_page(*args,**kwargs):
+    form = otp_form()
+    uemail = request.args.get('uemail')
+    page = request.args.get('section')
+    dplay=request.args.get("cpage")
+    dict = json.loads(request.args.get('dict'))
+        
+
+    # Store the OTP in session so it persists between requests
+    if not session["otp"]:
+        eotp = send_mail(receiver=uemail)
+        session["otp"] = eotp
+        print(eotp)
+    
+
+    if form.validate_on_submit():
+        
+        
+        
+        if int(form.Otp.data) == int(session["otp"]):
+            
+            after_otp(dict)
+            session["otp"] = None
+             # Clear the OTP after successful verification
+            return redirect(url_for(page))
+        else:
+            flash('OTP is wrong', 'danger')
+
+    return render_template("otp.html", title=f"otp/{dplay}", form=form)
+    
